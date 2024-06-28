@@ -1,0 +1,65 @@
+﻿@using System.Globalization
+@using HtmlToPdf.Contracts
+
+@model HtmlToPdf.Contracts.Invoice
+
+@{
+    IFormatProvider cultureInfo = CultureInfo.CreateSpecificCulture("en-US");
+    var subtotal = Model.LineItems.Sum(li => li.Price * li.Quantity).ToString("C", cultureInfo);
+    var total = Model.LineItems.Sum(li => li.Price * li.Quantity).ToString("C", cultureInfo);
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-w-7xl flex flex-col bg-gray-200 space-y-4 p-10">
+    <h1 class="text-2xl font-semibold">Invoice #@Model.Number</h1>
+
+    <p>Issued date: @Model.IssuedDate.ToString("dd/MM/yyyy")</p>
+    <p>Due date: @Model.DueDate.ToString("dd/MM/yyyy")</p>
+
+    <div class="flex justify-between space-x-4">
+        <div class="bg-gray-100 rounded-lg flex flex-col space-y-1 p-4 w-1/2">
+            <p class="font-medium">Seller:</p>
+            <p>@Model.SellerAddress.CompanyName</p>
+            <p>@Model.SellerAddress.Street</p>
+            <p>@Model.SellerAddress.City</p>
+            <p>@Model.SellerAddress.State</p>
+            <p>@Model.SellerAddress.Email</p>
+        </div>
+        <div class="bg-gray-100 rounded-lg flex flex-col space-y-1 p-4 w-1/2">
+            <p class="font-medium">Bill to:</p>
+            <p>@Model.CustomerAddress.CompanyName</p>
+            <p>@Model.CustomerAddress.Street</p>
+            <p>@Model.CustomerAddress.City</p>
+            <p>@Model.CustomerAddress.State</p>
+            <p>@Model.CustomerAddress.Email</p>
+        </div>
+    </div>
+
+    <div class="flex flex-col bg-white rounded-lg p-4 space-y-2">
+        <h2 class="text-xl font-medium">Items:</h2>
+        <div class="">
+            <div class="flex space-x-4 font-medium">
+                <p class="w-10">#</p>
+                <p class="w-52">Name</p>
+                <p class="w-20">Price</p>
+                <p class="w-20">Quantity</p>
+            </div>
+
+            @foreach ((int index, LineItem item) in Model.LineItems.Select((li, i) => (i + 1, li)))
+            {
+                <div class="flex space-x-4">
+                    <p class="w-10">@index</p>
+                    <p class="w-52">@item.Name</p>
+                    <p class="w-20">@item.Price.ToString("C", cultureInfo)</p>
+                    <p class="w-20">@item.Quantity.ToString("N2")</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="flex flex-col items-end bg-gray-50 space-y-2 p-4 rounded-lg">
+        <p>Subtotal: @subtotal</p>
+        <p>Total: <span class="font-semibold">@total</span></p>
+    </div>
+</div>
